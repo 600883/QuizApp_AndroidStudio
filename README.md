@@ -1,7 +1,5 @@
 # QuizApp_AndroidStudio
 
-# QuizApp_AndroidStudio
-
 ## Overview
 This Quiz app implements a simple game where users match names and photos. It consists of two core activities:
 
