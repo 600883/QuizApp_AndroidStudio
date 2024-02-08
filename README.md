@@ -46,7 +46,7 @@ This Quiz app implements a simple game where users match names and photos. It co
 <img width="200" alt="Skjermbilde 2024-02-08 kl  10 53 01" src="https://github.com/600883/QuizApp_AndroidStudio/assets/89355523/2f0f5f0c-60ed-4db2-b1e0-56fe3f10fca7">
 <img width="200" alt="Skjermbilde 2024-02-08 kl  10 55 00" src="https://github.com/600883/QuizApp_AndroidStudio/assets/89355523/6936fb81-72eb-4974-aa5d-494596a6ea8d">
 <img width="200" alt="Skjermbilde 2024-02-08 kl  10 55 30" src="https://github.com/600883/QuizApp_AndroidStudio/assets/89355523/f4d73733-b009-4c1e-b7b1-f5d4206ff171">
-<img width="269" alt="Skjermbilde 2024-02-08 kl  11 03 05" src="https://github.com/600883/QuizApp_AndroidStudio/assets/89355523/0625eeed-391c-434a-a632-51ffd88fb603">
+<img width="200" alt="Skjermbilde 2024-02-08 kl  11 03 05" src="https://github.com/600883/QuizApp_AndroidStudio/assets/89355523/0625eeed-391c-434a-a632-51ffd88fb603">
 
 
 
