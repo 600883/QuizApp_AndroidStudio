@@ -42,6 +42,8 @@ This Quiz app implements a simple game where users match names and photos. It co
 - Implement persistent storage for new entries and scores.
 - Enhance UI/UX for a more engaging user experience.
 - Add additional features such as image editing or sharing options.
+- Add additional feature, user should be able to select multiple photos when opening the photoalbum
+
 <img width="200" alt="Skjermbilde 2024-02-08 kl  10 52 10" src="https://github.com/600883/QuizApp_AndroidStudio/assets/89355523/d8695d1d-ad40-4472-a84d-ac694b06e720">
 <img width="200" alt="Skjermbilde 2024-02-08 kl  10 52 23" src="https://github.com/600883/QuizApp_AndroidStudio/assets/89355523/cd85e332-96a6-433b-bc38-96731862ffc3">
 <img width="200" alt="Skjermbilde 2024-02-08 kl  10 52 41" src="https://github.com/600883/QuizApp_AndroidStudio/assets/89355523/1c5721dc-e800-4f3c-980c-fac9a76dcbff">
