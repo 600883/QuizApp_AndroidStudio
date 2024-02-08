@@ -12,7 +12,7 @@ This Quiz app implements a simple game where users match names and photos. It co
 - **Gallery Activity**: 
   - Add new entries (name and associated photo).
   - Remove existing entries by clicking on the photo.
-  - Sort entries alphabetically.
+  - Sort entries alphabetically and also reversed.
   
 - **Quiz Activity**:
   - Randomly select a photo from the gallery.
