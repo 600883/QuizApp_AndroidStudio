@@ -15,8 +15,10 @@ This Quiz app implements a simple game where users match names and photos. It co
 - **Quiz Activity**:
   - Randomly select a photo from the gallery.
   - Display three name options, one of which is correct.
-  - Provide feedback on the correctness of the selected name.
+  - Provide feedback on the correctness of the selected name, red color appears on the button if wrong, green if correct
   - Keep track of the user's score.
+  - When the user have finished the quiz, a celebration animation displays in the background,(switches back and forth from yellow to green)
+  - A toast-message appears that you have finished the quiz
 
 ## Implementation Details
 - **Data Structure**: Uses a simple data structure from the Collections interface to maintain photos and names.
@@ -47,6 +49,7 @@ This Quiz app implements a simple game where users match names and photos. It co
 <img width="200" alt="Skjermbilde 2024-02-08 kl  10 55 00" src="https://github.com/600883/QuizApp_AndroidStudio/assets/89355523/6936fb81-72eb-4974-aa5d-494596a6ea8d">
 <img width="200" alt="Skjermbilde 2024-02-08 kl  10 55 30" src="https://github.com/600883/QuizApp_AndroidStudio/assets/89355523/f4d73733-b009-4c1e-b7b1-f5d4206ff171">
 <img width="200" alt="Skjermbilde 2024-02-08 kl  11 03 05" src="https://github.com/600883/QuizApp_AndroidStudio/assets/89355523/0625eeed-391c-434a-a632-51ffd88fb603">
+
 
 
 
