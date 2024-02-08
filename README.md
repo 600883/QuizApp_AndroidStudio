@@ -1,14 +1,44 @@
 # QuizApp_AndroidStudio
 
-The Quiz app
-This little app should implement an easy game where you have to match names and photos (or a random selection of cute animal pictures). There are two core activities, which the user should be able to choose from when the application starts:
+# QuizApp_AndroidStudio
 
-the "gallery": it shows all names & pictures, if necessary, letting the user scroll through the list. There should be buttons for adding a new entry, removing an existing entry (e.g. by clicking an image), and sorting all existing entries alphabetical order or reverse order (from A to Z or from Z to A).
-the "quiz": When users click on this activity, the app will randomly select a photo from the gallery, and shows it on the screen. The app should present the right name for the photo and two wrong names in random order, and the user has to select the one they think is correct. After submission, there should be an indication by the app if the name was correct or not. If not, the app should show the correct name. After that, the whole process repeats until the user decides to leave this activity. The app should keep track of the score (the number of correct answers vs all attempts) and show it on the screen during the quiz.
-The "gallery" has the "add entry"-functionality: Here the user can add a new entry (i.e., a pair of a photo and the associated name). Please allow the user to choose an existing photo from his/her phone or enable the user to take a photo using his/her camera (Please consider this an optional feature). The name/photo pair should then of course be available to the "gallery" and the "quiz".
-Other remarks:
+## Overview
+This Quiz app implements a simple game where users match names and photos. It consists of two core activities:
 
-don't immediately try to use one of the fancy databases such as SQLite or Rooms! Use a simple datastructure from the Collections interface to maintain photos & names! Use the Application-class (see below) to share this datastructure throughout the app.
-add 3 photos and names to the app through the resource folder, and use it to initialize your database when the app starts! That is, load the image data and put it into your datastructure. (Make sure that the images are not too large, because it will also be in Git -- you can also of course use a cat-pic instead of your real face.)
-do not worry about persistently storing new entries (or the score) on the phone. We will add this functionality in the next oblig, for now it is okay if your app "forgets" everything except for the builtin-photos above when we restart the app.
-Make sure navigating back from an activity works correctly (common mistakes: internal data structure not updating correctly when adding/removing, gallery not updating after adding/deleting, memory leak when dealing with image files).
+1. **Gallery**: Displays a list of names and associated photos. Users can scroll through the list, add new entries, remove existing ones, and sort entries alphabetically.
+2. **Quiz**: Presents a random photo from the gallery along with three name options, one of which is correct. Users select the correct name, and the app provides feedback on whether the answer is correct.
+
+## Features
+- **Gallery Activity**: 
+  - Add new entries (name and associated photo).
+  - Remove existing entries by clicking on the photo.
+  - Sort entries alphabetically.
+  
+- **Quiz Activity**:
+  - Randomly select a photo from the gallery.
+  - Display three name options, one of which is correct.
+  - Provide feedback on the correctness of the selected name.
+  - Keep track of the user's score.
+
+## Implementation Details
+- **Data Structure**: Uses a simple data structure from the Collections interface to maintain photos and names.
+- **Initialization**: Initializes the database with three default photos and names from the resource folder.
+- **Persistent Storage**: Does not persistently store new entries or the score on the phone.
+- **Memory Management**: Ensures proper memory management to prevent memory leaks.
+- **Navigation**: Ensures correct navigation between activities and updates the gallery after adding or removing entries.
+
+## Additional Notes
+- **Database**: Does not use databases like SQLite or Rooms; instead, utilizes a simple data structure.
+- **Image Size**: Ensures that images are not too large to avoid issues with Git.
+- **Camera Feature**: Considers camera functionality as an optional feature for adding new entries.
+- **Data Sharing**: Uses the Application class to share the data structure throughout the app.
+
+## Usage
+1. Clone the repository.
+2. Open the project in Android Studio.
+3. Build and run the app on an emulator or physical device.
+
+## Future Improvements
+- Implement persistent storage for new entries and scores.
+- Enhance UI/UX for a more engaging user experience.
+- Add additional features such as image editing or sharing options.
