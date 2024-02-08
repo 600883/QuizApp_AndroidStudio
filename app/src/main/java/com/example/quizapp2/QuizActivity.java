@@ -50,6 +50,7 @@ public class QuizActivity extends AppCompatActivity {
 
         resultStats = findViewById(R.id.resultatView);
 
+
         imageView.setImageURI(imageList.get(0));
 
 
@@ -115,7 +116,7 @@ public class QuizActivity extends AppCompatActivity {
     private void blinkBackground() {
         ValueAnimator animator = ValueAnimator.ofArgb(Color.YELLOW, Color.GREEN);
         animator.setDuration(500); // Set duration for each color transition
-        animator.setRepeatCount(10); // Repeat the animation 4 times (or any desired number)
+        animator.setRepeatCount(10); // Repeat the animation 10 times (or any desired number)
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -156,10 +157,20 @@ public class QuizActivity extends AppCompatActivity {
             option1.setText(options.get(0));
             option2.setText(options.get(1));
             option3.setText(options.get(2));
+
         } else {
             Toast.makeText(this, "Quiz Completed!", Toast.LENGTH_LONG).show();
             blinkBackground();
+            Button quitButton = findViewById(R.id.quit);
+            quitButton.setVisibility(View.VISIBLE);
+            quitButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(QuizActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            });
         }
     }
-
 }

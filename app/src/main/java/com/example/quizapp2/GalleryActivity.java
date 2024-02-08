@@ -39,13 +39,9 @@ import java.util.List;
 
 public class GalleryActivity extends AppCompatActivity {
 
-
     GridView gridView;
-
     ArrayAdapter<Uri> imageArrayAdapter;
-
     ActivityResultLauncher<String> resultLauncher;
-
     List<Uri> images = new ArrayList<>();
 
     @Override
@@ -56,11 +52,10 @@ public class GalleryActivity extends AppCompatActivity {
         gridView = findViewById(R.id.gridView);
 
 
-        //images.add(R.drawable.haaland);
+        //adds the default images to the gallery
         images.add(Uri.parse("android.resource://com.example.quizapp2/drawable/haaland"));
         images.add(Uri.parse("android.resource://com.example.quizapp2/drawable/odegaard"));
         images.add(Uri.parse("android.resource://com.example.quizapp2/drawable/messi"));
-
 
 
         FloatingActionButton add = findViewById(R.id.floatingActionButton2);
@@ -109,7 +104,6 @@ public class GalleryActivity extends AppCompatActivity {
                     }
                 });
 
-
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -150,7 +144,6 @@ public class GalleryActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
 
     private void pickImage() {
@@ -162,7 +155,6 @@ public class GalleryActivity extends AppCompatActivity {
     }
 
     private static void sortImagesFromAZ(List<Uri> image) {
-
         Comparator<Uri> uriComparator = new Comparator<Uri>() {
             @Override
             public int compare(Uri o1, Uri o2) {
@@ -170,7 +162,6 @@ public class GalleryActivity extends AppCompatActivity {
             }
         };
         Collections.sort(image, uriComparator);
-
     }
 
     private static void sortImagesFromZA(List<Uri> images) {
