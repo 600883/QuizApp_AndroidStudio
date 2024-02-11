@@ -64,6 +64,13 @@ public class GalleryActivity extends AppCompatActivity {
         Button start = findViewById(R.id.button3);
 
 
+        /*
+            this method is for displaying images and their associated named in a "GridView". A grid view has gridItem
+            which represents an image and a text
+            @param this, refers to the current context, usually an activity or a fragment
+
+            getView, is called by the Gridview to get the view for each item at the specified position
+         */
         imageArrayAdapter = new ArrayAdapter<Uri>(this, R.layout.grid_item, images) {
 
             @Override
@@ -83,17 +90,21 @@ public class GalleryActivity extends AppCompatActivity {
                 String imageName = FileUtils.getFileNameFromUri(imageUri);
                 textView.setText(imageName);
 
-
                 return convertView;
             }
         };
 
+
+        // sets the imageArrayAdapter as the adapter for a gridview
+        // An adapter is responsible for managing the data and creating views for each item in the gridview
         gridView.setAdapter(imageArrayAdapter);
 
 
         resultLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 new ActivityResultCallback<Uri>() {
+
+                    // this method is called when the activity launched by the GetContent() contract returns a result
                     @Override
                     public void onActivityResult(Uri uri) {
                         if (uri != null) {
@@ -104,6 +115,9 @@ public class GalleryActivity extends AppCompatActivity {
                     }
                 });
 
+        /*
+            onClickListener for the add button, the listener calls the pickImage(), when the button is clicked
+         */
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,6 +141,8 @@ public class GalleryActivity extends AppCompatActivity {
             }
         });
 
+
+        // functionality for removing a image when clicking on the image
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -135,6 +151,12 @@ public class GalleryActivity extends AppCompatActivity {
                 imageArrayAdapter.notifyDataSetChanged();
             }
         });
+
+
+        /*
+            onClickListener for the start quiz button
+            Intent.putExtra(...) adds an extra to the intent, which contains the images
+         */
 
         start.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,6 +168,11 @@ public class GalleryActivity extends AppCompatActivity {
         });
     }
 
+    /*
+        This method creates an intent to launch an activity for selecting images from the device's storage
+        Intent.setType(...) specifies the type of the content to select
+        The resultLauncher launches the activity with the intent, allowing the users to select one or more images
+     */
     private void pickImage() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);

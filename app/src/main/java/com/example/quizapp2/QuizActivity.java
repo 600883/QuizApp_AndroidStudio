@@ -1,9 +1,7 @@
 package com.example.quizapp2;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
-import android.animation.ArgbEvaluator;
+import androidx.appcompat.app.AppCompatActivity;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.graphics.Color;
@@ -37,6 +35,7 @@ public class QuizActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
 
+        // this code retrieves the list of imageUri's that was passed from the galleryActivity using an Intent.
         Intent intent = getIntent();
         imageList = (List<Uri>) intent.getSerializableExtra("imageList");
 
@@ -113,6 +112,10 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
+
+    /*
+    silly celebration animation that appears when the user has finished the quiz
+     */
     private void blinkBackground() {
         ValueAnimator animator = ValueAnimator.ofArgb(Color.YELLOW, Color.GREEN);
         animator.setDuration(500); // Set duration for each color transition
@@ -135,6 +138,7 @@ public class QuizActivity extends AppCompatActivity {
         option2.setBackgroundColor(Color.parseColor("#6200EE"));
         option3.setBackgroundColor(Color.parseColor("#6200EE"));
 
+        // this keeps the quiz active, as long as there are more images to guess
         if (currentImageIndex < imageList.size()) {
             imageView.setImageURI(imageList.get(currentImageIndex));
 
@@ -159,6 +163,8 @@ public class QuizActivity extends AppCompatActivity {
             option3.setText(options.get(2));
 
         } else {
+            // if the currentImage index is equal to the imagelist.size(), in practice, this means when all the images is
+            // guessed
             Toast.makeText(this, "Quiz Completed!", Toast.LENGTH_LONG).show();
             blinkBackground();
             Button quitButton = findViewById(R.id.quit);
