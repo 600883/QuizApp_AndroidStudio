@@ -7,7 +7,10 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -27,6 +30,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.example.quizapp2.room.Converters;
+import com.example.quizapp2.room.QuizAppEntity;
 import com.example.quizapp2.room.QuizAppRepository;
 import com.example.quizapp2.room.QuizAppViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -41,13 +46,10 @@ import java.util.List;
 
 public class GalleryActivity extends AppCompatActivity {
 
-    GridView gridView;
-    ArrayAdapter<Uri> imageArrayAdapter;
-    ActivityResultLauncher<String> resultLauncher;
+    ActivityResultLauncher<Intent> resultLauncher;
     List<Uri> images = new ArrayList<>();
 
-    private QuizAppViewModel viewModel;
-
+    private QuizAppViewModel quizAppViewModel;
 
 
     @Override
@@ -55,9 +57,103 @@ public class GalleryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
+        resultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent intent = result.getData();
+
+                    if (intent != null) {
+                        Uri pickedImage = intent.getData();
+                        if (pickedImage != null) {
+                            TextView imageText = findViewById(R.id.textView3);
+                            //ImageView imageView = findViewById(R.id.imageView);
+
+                            String imageURI = Converters.uriToString(pickedImage);
+                            QuizAppEntity image = new QuizAppEntity(imageURI, imageText.toString());
+                            quizAppViewModel.insert(image);
+                        }
+                    }
+                }
+            }
+        });
+
+
+        quizAppViewModel = new ViewModelProvider(this).get(QuizAppViewModel.class);
+
+        GridView gridView = findViewById(R.id.gridView);
+        ImageAdapter imageAdapter = new ImageAdapter(this);
+        gridView.setAdapter(imageAdapter);
+
+        quizAppViewModel.getAllImages().observe(this, new Observer<List<QuizAppEntity>>() {
+            @Override
+            public void onChanged(@Nullable final List<QuizAppEntity> quizAppEntities) {
+                imageAdapter.setList(quizAppEntities);
+            }
+        });
+
+        FloatingActionButton add = findViewById(R.id.floatingActionButton2);
+        Button backButton = findViewById(R.id.button4);
+        Button sort = findViewById(R.id.button5);
+        Button start = findViewById(R.id.button3);
+
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pickImage();
+            }
+        });
+
+        sort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sortImagesFromAZ(images);
+            }
+        });
+
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                QuizAppEntity image = (QuizAppEntity) imageAdapter.getItem(position);
+                int imageID = image.getId();
+                quizAppViewModel.deleteImageWithID(imageID);
+                imageAdapter.notifyDataSetChanged();
+
+
+                /*
+                Uri clickedImage = images.get(position);
+                images.remove(clickedImage);
+                imageAdapter.notifyDataSetChanged();
+
+                 */
+            }
+        });
+
+    }
+        private void pickImage() {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/*");
+
+            resultLauncher.launch(intent);
+        }
+
+        private static void sortImagesFromAZ(List<Uri> image) {
+            Comparator<Uri> uriComparator = new Comparator<Uri>() {
+                @Override
+                public int compare(Uri o1, Uri o2) {
+                    return o1.toString().compareTo(o2.toString());
+                }
+            };
+            Collections.sort(image, uriComparator);
+        }
 
 
 
+
+        /*
         gridView = findViewById(R.id.gridView);
 
 
@@ -80,6 +176,7 @@ public class GalleryActivity extends AppCompatActivity {
 
             getView, is called by the Gridview to get the view for each item at the specified position
          */
+        /*
         imageArrayAdapter = new ArrayAdapter<Uri>(this, R.layout.grid_item, images) {
 
             @Override
@@ -128,6 +225,7 @@ public class GalleryActivity extends AppCompatActivity {
         /*
             onClickListener for the add button, the listener calls the pickImage(), when the button is clicked
          */
+        /*
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -167,6 +265,7 @@ public class GalleryActivity extends AppCompatActivity {
             onClickListener for the start quiz button
             Intent.putExtra(...) adds an extra to the intent, which contains the images
          */
+        /*
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -182,6 +281,7 @@ public class GalleryActivity extends AppCompatActivity {
         Intent.setType(...) specifies the type of the content to select
         The resultLauncher launches the activity with the intent, allowing the users to select one or more images
      */
+        /*
     private void pickImage() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -209,5 +309,7 @@ public class GalleryActivity extends AppCompatActivity {
             }
         };
         Collections.sort(images,uriComparator);
-    }
+
+         */
+
 }

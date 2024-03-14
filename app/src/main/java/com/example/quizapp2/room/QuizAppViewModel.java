@@ -1,17 +1,15 @@
 package com.example.quizapp2.room;
 
 import android.app.Application;
-
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-
 import java.util.List;
 
 public class QuizAppViewModel extends AndroidViewModel {
 
     private QuizAppRepository repository;
 
-    private LiveData<List<QuizAppEntity>> allImages;
+    private final LiveData<List<QuizAppEntity>> allImages;
 
     public QuizAppViewModel(Application application) {
         super(application);
@@ -19,7 +17,7 @@ public class QuizAppViewModel extends AndroidViewModel {
         allImages = repository.getAllImages();
     }
 
-    LiveData<List<QuizAppEntity>> getAllImages() {
+   public LiveData<List<QuizAppEntity>> getAllImages() {
         return allImages;
     }
 
@@ -27,7 +25,7 @@ public class QuizAppViewModel extends AndroidViewModel {
         repository.insert(image);
     }
 
-    public void deleteImageWithID(QuizAppEntity image) {
-        repository.delete(image);
+    public void deleteImageWithID(long id) {
+        repository.delete(id);
     }
 }

@@ -22,17 +22,18 @@ public class QuizAppRepository {
         allImages = quizAppDAO.getAllImages();
     }
 
-    void insert(QuizAppEntity image) {
+    public void insert(QuizAppEntity image) {
         QuizAppRoomDatabase.databaseWriteExecutor.execute(() -> {
             quizAppDAO.insert(image);
         });
     }
 
-    void delete(QuizAppEntity image) {
+    void delete(long id) {
         QuizAppRoomDatabase.databaseWriteExecutor.execute(() -> {
-            quizAppDAO.deleteImage(image);
+            quizAppDAO.deleteImage(id);
         });
     }
+
 
 
 }

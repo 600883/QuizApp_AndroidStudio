@@ -14,8 +14,8 @@ public interface QuizAppDAO {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insert(QuizAppEntity imageAndUri);
 
-    @Query("DELETE FROM images_table")
-    void deleteImage(QuizAppEntity image);
+    @Query("DELETE FROM images_table WHERE id = :id")
+    void deleteImage(long id);
 
     @Query("SELECT * FROM images_table")
     LiveData<List<QuizAppEntity>> getAllImages();

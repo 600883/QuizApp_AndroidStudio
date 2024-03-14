@@ -1,5 +1,7 @@
 package com.example.quizapp2.room;
 
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
