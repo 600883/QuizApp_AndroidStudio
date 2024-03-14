@@ -27,6 +27,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.example.quizapp2.room.QuizAppRepository;
+import com.example.quizapp2.room.QuizAppViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
@@ -44,10 +46,17 @@ public class GalleryActivity extends AppCompatActivity {
     ActivityResultLauncher<String> resultLauncher;
     List<Uri> images = new ArrayList<>();
 
+    private QuizAppViewModel viewModel;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
+
+
+
 
         gridView = findViewById(R.id.gridView);
 
@@ -107,6 +116,7 @@ public class GalleryActivity extends AppCompatActivity {
                     // this method is called when the activity launched by the GetContent() contract returns a result
                     @Override
                     public void onActivityResult(Uri uri) {
+                        Log.d("ss", uri.toString());
                         if (uri != null) {
                             images.add(uri);
 
@@ -157,7 +167,6 @@ public class GalleryActivity extends AppCompatActivity {
             onClickListener for the start quiz button
             Intent.putExtra(...) adds an extra to the intent, which contains the images
          */
-
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -174,10 +183,11 @@ public class GalleryActivity extends AppCompatActivity {
         The resultLauncher launches the activity with the intent, allowing the users to select one or more images
      */
     private void pickImage() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.setType("image/*");
+
         resultLauncher.launch("image/*");
     }
 
