@@ -51,11 +51,33 @@ public class GalleryActivity extends AppCompatActivity {
 
     private QuizAppViewModel quizAppViewModel;
 
+    ImageAdapter imageAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
+
+        // set up the imageAdapter first
+        imageAdapter = new ImageAdapter(this);
+
+        GridView gridView = findViewById(R.id.gridView);
+        gridView.setAdapter(imageAdapter);
+
+        // Initialize the viewmodel
+        quizAppViewModel = new ViewModelProvider(this).get(QuizAppViewModel.class);
+
+        // Observe the livedata
+        quizAppViewModel.getAllImages().observe(this, new Observer<List<QuizAppEntity>>() {
+            @Override
+            public void onChanged(@Nullable final List<QuizAppEntity> quizAppEntities) {
+                imageAdapter.setList(quizAppEntities);
+                Log.e("galleryAct", "Updated the image adapters list");
+            }
+        });
+
+
 
         resultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
@@ -66,11 +88,13 @@ public class GalleryActivity extends AppCompatActivity {
                     if (intent != null) {
                         Uri pickedImage = intent.getData();
                         if (pickedImage != null) {
-                            TextView imageText = findViewById(R.id.textView3);
-                            //ImageView imageView = findViewById(R.id.imageView);
 
+                            String displayImageName = FileUtils.getFilenameToTextView(GalleryActivity.this, pickedImage);
+                            TextView imageText = findViewById(R.id.textView3);
+
+                            imageText.setText(displayImageName);
                             String imageURI = Converters.uriToString(pickedImage);
-                            QuizAppEntity image = new QuizAppEntity(imageURI, imageText.toString());
+                            QuizAppEntity image = new QuizAppEntity(imageURI, imageText.getText().toString());
                             quizAppViewModel.insert(image);
                         }
                     }
@@ -78,19 +102,6 @@ public class GalleryActivity extends AppCompatActivity {
             }
         });
 
-
-        quizAppViewModel = new ViewModelProvider(this).get(QuizAppViewModel.class);
-
-        GridView gridView = findViewById(R.id.gridView);
-        ImageAdapter imageAdapter = new ImageAdapter(this);
-        gridView.setAdapter(imageAdapter);
-
-        quizAppViewModel.getAllImages().observe(this, new Observer<List<QuizAppEntity>>() {
-            @Override
-            public void onChanged(@Nullable final List<QuizAppEntity> quizAppEntities) {
-                imageAdapter.setList(quizAppEntities);
-            }
-        });
 
         FloatingActionButton add = findViewById(R.id.floatingActionButton2);
         Button backButton = findViewById(R.id.button4);
@@ -104,10 +115,26 @@ public class GalleryActivity extends AppCompatActivity {
             }
         });
 
+        start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GalleryActivity.this, QuizActivity.class);
+                startActivity(intent);
+            }
+        });
+
         sort.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 sortImagesFromAZ(images);
+            }
+        });
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GalleryActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -121,13 +148,6 @@ public class GalleryActivity extends AppCompatActivity {
                 quizAppViewModel.deleteImageWithID(imageID);
                 imageAdapter.notifyDataSetChanged();
 
-
-                /*
-                Uri clickedImage = images.get(position);
-                images.remove(clickedImage);
-                imageAdapter.notifyDataSetChanged();
-
-                 */
             }
         });
 

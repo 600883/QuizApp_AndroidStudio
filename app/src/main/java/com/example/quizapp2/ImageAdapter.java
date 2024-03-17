@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.example.quizapp2.room.QuizAppEntity;
 
 import java.util.List;
+import java.util.zip.Inflater;
 
 public class ImageAdapter extends BaseAdapter {
 
@@ -31,6 +32,7 @@ public class ImageAdapter extends BaseAdapter {
 
     public ImageAdapter(Context context) {
         this.context = context;
+        this.inflater = LayoutInflater.from(context);
     }
 
     @Override
@@ -38,7 +40,7 @@ public class ImageAdapter extends BaseAdapter {
         if (list != null) {
             return list.size();
         } else {
-            Log.e("ImageAdapter", "The list is null.");
+            Log.e("ImageAdapter", "The list is null");
             return 0; // Or any default value you prefer
         }
     }
@@ -69,9 +71,9 @@ public class ImageAdapter extends BaseAdapter {
         }
 
         QuizAppEntity image = list.get(position);
-        Uri imageUri = null;
+
             if(image.getUri() != null) {
-                Glide.with(context).load(Uri.parse(image.getUri())).into(holder.imageView);
+                Glide.with(context).load(Uri.parse(image.getUri())).error(R.drawable.haaland).into(holder.imageView);
 
                 holder.textView.setText(image.getName());
             }
@@ -86,6 +88,10 @@ public class ImageAdapter extends BaseAdapter {
     public void setList(List<QuizAppEntity> list) {
         this.list = list;
         notifyDataSetChanged();
+    }
+
+    public List<QuizAppEntity> getList() {
+        return list;
     }
 
     private static class ViewHolder {

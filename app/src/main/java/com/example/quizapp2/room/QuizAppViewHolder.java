@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.quizapp2.R;
 
-
+/*
 public class QuizAppViewHolder extends RecyclerView.ViewHolder {
 
     private final TextView imageTextView;
@@ -35,4 +35,8 @@ public class QuizAppViewHolder extends RecyclerView.ViewHolder {
         return  new QuizAppViewHolder(view);
     }
 
+
+
 }
+
+ */
