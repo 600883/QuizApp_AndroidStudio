@@ -20,7 +20,8 @@ public interface QuizAppDAO {
     @Query("SELECT * FROM images_table")
     LiveData<List<QuizAppEntity>> getAllImages();
 
-
+    @Query("SELECT * FROM images_table ORDER BY name ASC")
+    LiveData<List<QuizAppEntity>> getAllImagesSortedByName();
 
 
 

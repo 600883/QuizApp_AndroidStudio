@@ -34,6 +34,10 @@ public class QuizAppRepository {
         });
     }
 
+    public LiveData<List<QuizAppEntity>> getAllImagesSortedByName() {
+        return quizAppDAO.getAllImagesSortedByName();
+    }
+
 
 
 }

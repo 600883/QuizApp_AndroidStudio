@@ -71,14 +71,31 @@ public class ImageAdapter extends BaseAdapter {
         }
 
         QuizAppEntity image = list.get(position);
+        String imageUriOrName = image.getUri(); // Assuming this will contain either URI or a resoourceName
 
-            if(image.getUri() != null) {
-                Glide.with(context).load(Uri.parse(image.getUri())).error(R.drawable.haaland).into(holder.imageView);
-
-                holder.textView.setText(image.getName());
+        if (imageUriOrName != null)  {
+            // it is a file uri
+            if (imageUriOrName.contains("/")) {
+                Glide.with(context).load(Uri.parse(imageUriOrName)).into(holder.imageView);
+            } else {
+                // it is a resource name
+                int resourceId = context.getResources().getIdentifier(imageUriOrName, "drawable", context.getPackageName());
+                if (resourceId != 0) {
+                    holder.imageView.setImageResource(resourceId);
+                } else {
+                    holder.imageView.setImageResource(R.drawable.haaland);
+                }
             }
-            return convertView;
+            holder.textView.setText(image.getName());
+        } else {
+            holder.imageView.setImageResource(R.drawable.haaland);
+            holder.textView.setText(image.getName());
+        }
+
+        return convertView;
     }
+
+
 
     public void removeItem(int position) {
         list.remove(position);

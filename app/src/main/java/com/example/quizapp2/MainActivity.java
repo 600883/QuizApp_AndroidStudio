@@ -28,9 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
         repository.getAllImages().observe(this, repo -> {
             if(repo.isEmpty()) {
-                repository.insert(new QuizAppEntity(String.valueOf(R.drawable.haaland), "Haaland"));
-                repository.insert(new QuizAppEntity(String.valueOf(R.drawable.hojlund), "Hojlund"));
-                repository.insert(new QuizAppEntity(String.valueOf(R.drawable.messi), "Messi"));
+                repository.insert(new QuizAppEntity(FileUtils.getResourceName(this, R.drawable.haaland), "Haaland"));
+                repository.insert(new QuizAppEntity(FileUtils.getResourceName(this, R.drawable.hojlund), "Hojlund"));
+                repository.insert(new QuizAppEntity(FileUtils.getResourceName(this, R.drawable.messi), "Messi"));
             }
         });
 

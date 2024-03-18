@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.widget.ImageView;
 
 import java.io.File;
 
@@ -53,5 +54,14 @@ public class FileUtils {
             }
         }
             return filename != null ? filename : "";
-        }
     }
+
+    public static String getResourceName(Context context, int resourceId) {
+        if (context != null) {
+            return context.getResources().getResourceEntryName(resourceId);
+        }
+        return "";
+    }
+    
+
+}
