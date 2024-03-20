@@ -23,6 +23,10 @@ public interface QuizAppDAO {
     @Query("SELECT * FROM images_table ORDER BY name ASC")
     LiveData<List<QuizAppEntity>> getAllImagesSortedByName();
 
+    @Query("SELECT * FROM images_table WHERE id IN (:imageIds)")
+    LiveData<List<QuizAppEntity>> getImagesByIds(List<Long> imageIds);
 
+    @Query("SELECT name FROM images_table WHERE name != :correctImageName")
+    LiveData<List<String>> getAllImageNamesExcept(String correctImageName);
 
 }

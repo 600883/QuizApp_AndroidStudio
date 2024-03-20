@@ -2,181 +2,187 @@ package com.example.quizapp2;
 
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.example.quizapp2.room.QuizAppEntity;
+import com.example.quizapp2.room.QuizAppViewModel;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
 public class QuizActivity extends AppCompatActivity {
 
-    ImageView imageView;
-    Button option1, option2, option3;
-    private List<Uri> imageList;
-    private String correctAnswer;
-    private int currentImageIndex;
-    private int numCorrects;
-    private int totTries;
-    private TextView resultStats;
+    private ImageView imageView;
+    private Button option1, option2, option3;
 
+    private Iterator<QuizAppEntity> quizIterator;
+
+    private QuizAppEntity currentImage;
+
+    private String correctAnswer;
+
+    private QuizAppViewModel quizAppViewModel;
+    ¨
+    private int numCorrects;
+    private int totalTries;
+    TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
 
-        // this code retrieves the list of imageUri's that was passed from the galleryActivity using an Intent.
-        Intent intent = getIntent();
-        imageList = (List<Uri>) intent.getSerializableExtra("imageList");
-
-        assert imageList != null;
-        Collections.shuffle(imageList);
-
         imageView = findViewById(R.id.imageView2);
         option1 = findViewById(R.id.button6);
         option2 = findViewById(R.id.button7);
         option3 = findViewById(R.id.button8);
 
-        resultStats = findViewById(R.id.resultatView);
+        textView = findViewById(R.id.resultatView);
+
+        setupAnswerButtonListener();
 
 
-        imageView.setImageURI(imageList.get(0));
+        // Initialize the ViewModel
+        quizAppViewModel = new ViewModelProvider(this).get(QuizAppViewModel.class);
 
-
-        option1.setText(FileUtils.getFileNameFromUri(imageList.get(0)));
-        option2.setText(FileUtils.getFileNameFromUri(imageList.get(1)));
-        option3.setText(FileUtils.getFileNameFromUri(imageList.get(2)));
-
-        resultStats.setText(numCorrects + "/" + totTries);
-
-
-        correctAnswer = FileUtils.getFileNameFromUri(imageList.get(0));
-
-
-        option1.setOnClickListener(new View.OnClickListener() {
+        // Observe the LiveData containg all images from the database
+        quizAppViewModel.getAllImages().observe(this, new Observer<List<QuizAppEntity>>() {
             @Override
-            public void onClick(View v) {
-                handleAnswer(option1);
+            public void onChanged(List<QuizAppEntity> quizAppEntities) {
+                setupQuiz(quizAppEntities);
             }
         });
-
-        option2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                handleAnswer(option2);
-            }
-        });
-
-        option3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                handleAnswer(option3);
-            }
-        });
-
-        currentImageIndex = 0;
-
     }
 
-    /*
-    this method handles the delay after a correct option is selected and calls the
-    updateQuiz after 500 milliseconds
-     */
-    private void handleAnswer(Button button) {
-        if(button.getText().toString().equals(correctAnswer)) {
-            button.setBackgroundColor(Color.GREEN);
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    currentImageIndex++;
-                    updateQuiz();
-                    numCorrects++;
-                    totTries++;
-                    resultStats.setText(numCorrects + "/" + totTries);
-                }
-            }, 500);
+    private void setupQuiz(List<QuizAppEntity> quizAppEntities) {
+        // Shuffle the images to randomize the order
+        Collections.shuffle(quizAppEntities);
+
+        // Convert the list to an iterator for easy traversal
+        quizIterator = quizAppEntities.iterator();
+
+        nextQuestion();
+    }
+
+    private void nextQuestion() {
+        resetButtonColorsAndEnable();
+        if(quizIterator.hasNext()) {
+            currentImage = quizIterator.next();
+
+            //Display the image from the current quizAppEntity
+            displayImage(currentImage.getUri());
+            Log.e("quiz", currentImage.getUri());
+
+            correctAnswer = currentImage.getName();
+
+            prepareOptions();
+
         } else {
-            button.setBackgroundColor(Color.RED);
-            totTries++;
-            resultStats.setText(numCorrects + "/" + totTries);
+            finishQuiz();
         }
     }
 
-
-    /*
-    silly celebration animation that appears when the user has finished the quiz
-     */
-    private void blinkBackground() {
-        ValueAnimator animator = ValueAnimator.ofArgb(Color.YELLOW, Color.GREEN);
-        animator.setDuration(500); // Set duration for each color transition
-        animator.setRepeatCount(10); // Repeat the animation 10 times (or any desired number)
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+    private void prepareOptions() {
+        // Store the LiveData object in a final reference so that it can be accessed from within the onChanged method
+        final LiveData<List<String>> liveData = quizAppViewModel.getAllImageNamesExcept(correctAnswer);
+        liveData.observe(this, new Observer<List<String>>() {
             @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int color = (int) animation.getAnimatedValue();
-                getWindow().getDecorView().setBackgroundColor(color);
+            public void onChanged(List<String> options) {
+                Collections.shuffle(options);
+
+                while (options.size() > 2) {
+                    options.remove(options.size() - 1);
+                }
+
+                int correctIndex = new Random().nextInt(3);
+                options.add(correctIndex, correctAnswer);
+
+                option1.setText(options.get(0));
+                option2.setText(options.get(1));
+                option3.setText(options.get(2));
+
+                // After populating the buttons, you no longer need updates for this LiveData,
+                // so i remove the observer to prevent future updates from triggering this code.
+                liveData.removeObserver(this);
             }
         });
-        animator.start();
     }
 
-    private void updateQuiz() {
-        /*
-        sets the color to purple each time the updateQuiz is called, after the buttons is clicked
-         */
+
+    private void setupAnswerButtonListener() {
+        View.OnClickListener answerClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Button clickedButton = (Button) v;
+                if(clickedButton.getText().toString().equals(correctAnswer)) {
+                    clickedButton.setBackgroundColor(Color.GREEN);
+                    loadNextQuestionWithDelay();
+                    numCorrects++;
+                    totalTries++;
+                } else {
+                    clickedButton.setBackgroundColor(Color.RED);
+                    loadNextQuestionWithDelay();
+                    totalTries++;
+                }
+                option1.setEnabled(false);
+                option2.setEnabled(false);
+                option3.setEnabled(false);
+            }
+        };
+
+        option1.setOnClickListener(answerClickListener);
+        option2.setOnClickListener(answerClickListener);
+        option3.setOnClickListener(answerClickListener);
+    }
+
+    private void loadNextQuestionWithDelay() {
+        imageView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                resetButtonColorsAndEnable();
+                nextQuestion();
+            }
+        }, 500); // 500 ms delay before loading next question
+    }
+
+    private void resetButtonColorsAndEnable() {
+
         option1.setBackgroundColor(Color.parseColor("#6200EE"));
         option2.setBackgroundColor(Color.parseColor("#6200EE"));
         option3.setBackgroundColor(Color.parseColor("#6200EE"));
 
-        // this keeps the quiz active, as long as there are more images to guess
-        if (currentImageIndex < imageList.size()) {
-            imageView.setImageURI(imageList.get(currentImageIndex));
+        option1.setEnabled(true);
+        option2.setEnabled(true);
+        option3.setEnabled(true);
+    }
 
-            // Set the filename of the current image as the correct answer
-            correctAnswer = FileUtils.getFileNameFromUri(imageList.get(currentImageIndex));
+    private void displayImage(String imageUri) {
 
-            // Get all image names except the correct one
-            List<String> options = new ArrayList<>();
-            for(int i = 0; i < imageList.size(); i++) {
-                if(i != currentImageIndex) {
-                    options.add(FileUtils.getFileNameFromUri(imageList.get(i)));
-                }
-            }
+        Uri uri = Uri.parse(imageUri);
 
-            // Shuffle the options and add the correct answer to a random position
-            Collections.shuffle(options);
-            int correctIndex = new Random().nextInt(3);
-            options.add(correctIndex, correctAnswer);
+        Glide.with(this).load(uri).into(imageView);
+    }
 
-            option1.setText(options.get(0));
-            option2.setText(options.get(1));
-            option3.setText(options.get(2));
-
-        } else {
-            // if the currentImage index is equal to the imagelist.size(), in practice, this means when all the images is
-            // guessed
-            Toast.makeText(this, "Quiz Completed!", Toast.LENGTH_LONG).show();
-            blinkBackground();
-            Button quitButton = findViewById(R.id.quit);
-            quitButton.setVisibility(View.VISIBLE);
-            quitButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(QuizActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-            });
-        }
+    private void finishQuiz() {
+        finish();
     }
 }

@@ -38,6 +38,14 @@ public class QuizAppRepository {
         return quizAppDAO.getAllImagesSortedByName();
     }
 
+    public LiveData<List<QuizAppEntity>> getImagesByIds(List<Long> imageIds) {
+        return quizAppDAO.getImagesByIds(imageIds);
+    }
+
+    public LiveData<List<String>> getAllImageNamesExcept(String correctImageName) {
+        return quizAppDAO.getAllImageNamesExcept(correctImageName);
+    }
+
 
 
 }
