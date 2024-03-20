@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -95,6 +96,7 @@ public class QuizActivity extends AppCompatActivity {
             correctAnswer = currentImage.getName();
 
             prepareOptions();
+            updateScore();
 
         } else {
             finishQuiz();
@@ -138,17 +140,20 @@ public class QuizActivity extends AppCompatActivity {
                     loadNextQuestionWithDelay();
                     numCorrects++;
                     totalTries++;
+
                 } else {
                     clickedButton.setBackgroundColor(Color.RED);
                     loadNextQuestionWithDelay();
                     totalTries++;
+
                 }
                 option1.setEnabled(false);
                 option2.setEnabled(false);
                 option3.setEnabled(false);
-            }
-        };
 
+            }
+
+        };
         option1.setOnClickListener(answerClickListener);
         option2.setOnClickListener(answerClickListener);
         option3.setOnClickListener(answerClickListener);
@@ -183,6 +188,18 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void finishQuiz() {
-        finish();
+        Toast.makeText(this,"You have finished the quiz!", Toast.LENGTH_LONG).show();
+
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                finish();
+            }
+        }, 2000);
+    }
+
+    private void updateScore() {
+        String scoreView = "Score: " + numCorrects + "/" + totalTries;
+        textView.setText(scoreView);
     }
 }
