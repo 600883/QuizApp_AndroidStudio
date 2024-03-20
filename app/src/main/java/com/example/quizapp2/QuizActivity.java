@@ -41,7 +41,7 @@ public class QuizActivity extends AppCompatActivity {
     private String correctAnswer;
 
     private QuizAppViewModel quizAppViewModel;
-    ¨
+
     private int numCorrects;
     private int totalTries;
     TextView textView;
