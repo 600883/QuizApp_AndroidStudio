@@ -71,7 +71,7 @@ public class ImageAdapter extends BaseAdapter {
         }
 
         QuizAppEntity image = list.get(position);
-        String imageUriOrName = image.getUri(); // Assuming this will contain either URI or a resoourceName
+        String imageUriOrName = image.getUri(); // Assuming this will contain either URI or a resourceName
 
         if (imageUriOrName != null)  {
             // it is a file uri
@@ -95,8 +95,6 @@ public class ImageAdapter extends BaseAdapter {
         return convertView;
     }
 
-
-
     public void removeItem(int position) {
         list.remove(position);
         notifyDataSetChanged();
@@ -115,5 +113,4 @@ public class ImageAdapter extends BaseAdapter {
         ImageView imageView;
         TextView textView;
     }
-
 }

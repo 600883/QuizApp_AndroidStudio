@@ -6,14 +6,19 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -44,7 +49,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import android.Manifest;
+
 public class GalleryActivity extends AppCompatActivity {
+
+    private static int PERMISSION_REQUEST_READ_MEDIA_IMAGES = 101;
 
     ActivityResultLauncher<Intent> resultLauncher;
     List<Uri> images = new ArrayList<>();
@@ -65,18 +74,10 @@ public class GalleryActivity extends AppCompatActivity {
         GridView gridView = findViewById(R.id.gridView);
         gridView.setAdapter(imageAdapter);
 
+        //checkAndRequestImagePermission();
+
         // Initialize the viewmodel
         quizAppViewModel = new ViewModelProvider(this).get(QuizAppViewModel.class);
-
-        // Observe the livedata
-        quizAppViewModel.getAllImages().observe(this, new Observer<List<QuizAppEntity>>() {
-            @Override
-            public void onChanged(@Nullable final List<QuizAppEntity> quizAppEntities) {
-                imageAdapter.setList(quizAppEntities);
-                Log.e("galleryAct", "Updated the image adapters list");
-            }
-        });
-
 
 
         resultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -102,6 +103,14 @@ public class GalleryActivity extends AppCompatActivity {
             }
         });
 
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
+            updateImageAdapter();
+        } else {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                requestReadMediaImagesPermission();
+            }
+        }
+
 
         FloatingActionButton add = findViewById(R.id.floatingActionButton2);
         Button backButton = findViewById(R.id.button4);
@@ -126,7 +135,7 @@ public class GalleryActivity extends AppCompatActivity {
         sort.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sortImagesFromAZ(images);
+                sortList();
             }
         });
 
@@ -152,184 +161,66 @@ public class GalleryActivity extends AppCompatActivity {
         });
 
     }
+
+        private void updateImageAdapter() {
+            quizAppViewModel.getAllImages().observe(this, quizAppEntities -> {
+                imageAdapter.setList(quizAppEntities);
+                imageAdapter.notifyDataSetChanged();
+            });
+        }
+
         private void pickImage() {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("image/*");
 
             resultLauncher.launch(intent);
         }
 
-        private static void sortImagesFromAZ(List<Uri> image) {
-            Comparator<Uri> uriComparator = new Comparator<Uri>() {
-                @Override
-                public int compare(Uri o1, Uri o2) {
-                    return o1.toString().compareTo(o2.toString());
-                }
-            };
-            Collections.sort(image, uriComparator);
-        }
-
-
-
-
-        /*
-        gridView = findViewById(R.id.gridView);
-
-
-        //adds the default images to the gallery
-        images.add(Uri.parse("android.resource://com.example.quizapp2/drawable/haaland"));
-        images.add(Uri.parse("android.resource://com.example.quizapp2/drawable/odegaard"));
-        images.add(Uri.parse("android.resource://com.example.quizapp2/drawable/messi"));
-
-
-        FloatingActionButton add = findViewById(R.id.floatingActionButton2);
-        Button backButton = findViewById(R.id.button4);
-        Button sort = findViewById(R.id.button5);
-        Button start = findViewById(R.id.button3);
-
-
-        /*
-            this method is for displaying images and their associated named in a "GridView". A grid view has gridItem
-            which represents an image and a text
-            @param this, refers to the current context, usually an activity or a fragment
-
-            getView, is called by the Gridview to get the view for each item at the specified position
-         */
-        /*
-        imageArrayAdapter = new ArrayAdapter<Uri>(this, R.layout.grid_item, images) {
-
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-
-                if (convertView == null) {
-                    LayoutInflater inflater = LayoutInflater.from(getContext());
-                    convertView = inflater.inflate(R.layout.grid_item, parent, false);
-                }
-                ImageView imageView = convertView.findViewById(R.id.imageView);
-                TextView textView = convertView.findViewById(R.id.textView3);
-
-                Uri imageUri = getItem(position);
-
-                imageView.setImageURI(imageUri);
-
-                String imageName = FileUtils.getFileNameFromUri(imageUri);
-                textView.setText(imageName);
-
-                return convertView;
-            }
-        };
-
-
-        // sets the imageArrayAdapter as the adapter for a gridview
-        // An adapter is responsible for managing the data and creating views for each item in the gridview
-        gridView.setAdapter(imageArrayAdapter);
-
-
-        resultLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                new ActivityResultCallback<Uri>() {
-
-                    // this method is called when the activity launched by the GetContent() contract returns a result
+    private void sortList() {
+        quizAppViewModel.getAllImages().observe(this, images -> {
+            if(!images.isEmpty()) {
+                // sorting the list using a comparator
+                Collections.sort(images, new Comparator<QuizAppEntity>() {
                     @Override
-                    public void onActivityResult(Uri uri) {
-                        Log.d("ss", uri.toString());
-                        if (uri != null) {
-                            images.add(uri);
-
-                            imageArrayAdapter.notifyDataSetChanged();
-                        }
+                    public int compare(QuizAppEntity img1, QuizAppEntity img2) {
+                        return img1.getName().compareTo(img2.getName());
                     }
                 });
-
-        /*
-            onClickListener for the add button, the listener calls the pickImage(), when the button is clicked
-         */
-        /*
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pickImage();
-            }
-        });
-
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(GalleryActivity.this, MainActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        sort.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                    sortImagesFromAZ(images);
-                    imageArrayAdapter.notifyDataSetChanged();
-            }
-        });
-
-
-        // functionality for removing a image when clicking on the image
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Uri clickedImage = images.get(position);
-                images.remove(clickedImage);
-                imageArrayAdapter.notifyDataSetChanged();
-            }
-        });
-
-
-        /*
-            onClickListener for the start quiz button
-            Intent.putExtra(...) adds an extra to the intent, which contains the images
-         */
-        /*
-        start.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(GalleryActivity.this, QuizActivity.class);
-                intent.putExtra("imageList", (Serializable) images);
-                startActivity(intent);
-            }
+                // remember to update the adapter after changes in the db, so the viewmodel can update the views
+                updateImageAdapter();
+            };
         });
     }
 
-    /*
-        This method creates an intent to launch an activity for selecting images from the device's storage
-        Intent.setType(...) specifies the type of the content to select
-        The resultLauncher launches the activity with the intent, allowing the users to select one or more images
-     */
-        /*
-    private void pickImage() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        intent.setType("image/*");
 
-        resultLauncher.launch("image/*");
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    private void requestReadMediaImagesPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[] {Manifest.permission.READ_MEDIA_IMAGES},
+                PERMISSION_REQUEST_READ_MEDIA_IMAGES);
     }
 
-    private static void sortImagesFromAZ(List<Uri> image) {
-        Comparator<Uri> uriComparator = new Comparator<Uri>() {
-            @Override
-            public int compare(Uri o1, Uri o2) {
-                return o1.toString().compareTo(o2.toString());
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSION_REQUEST_READ_MEDIA_IMAGES) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, proceed with accessing media images
+                updateImageAdapter();
+            } else {
+                // Permission denied, inform the user of the necessary permissions
+                Toast.makeText(this, "Permission required to access images", Toast.LENGTH_SHORT).show();
             }
-        };
-        Collections.sort(image, uriComparator);
+        }
     }
 
-    private static void sortImagesFromZA(List<Uri> images) {
-        Comparator<Uri> uriComparator = new Comparator<Uri>() {
-            @Override
-            public int compare(Uri o1, Uri o2) {
-                return o2.toString().compareTo(o1.toString());
-            }
-        };
-        Collections.sort(images,uriComparator);
 
-         */
+
+
+
 
 }

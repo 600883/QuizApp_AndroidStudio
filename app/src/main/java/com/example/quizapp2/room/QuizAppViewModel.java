@@ -37,7 +37,7 @@ public class QuizAppViewModel extends AndroidViewModel {
         return quizImages;
     }
 
-   public LiveData<List<QuizAppEntity>> getAllImages() {
+    public LiveData<List<QuizAppEntity>> getAllImages() {
         return allImages;
     }
 
@@ -52,6 +52,5 @@ public class QuizAppViewModel extends AndroidViewModel {
     public LiveData<List<String>> getAllImageNamesExcept(String correctImageName) {
         return repository.getAllImageNamesExcept(correctImageName);
     }
-
 
 }

@@ -99,6 +99,7 @@ public class QuizActivity extends AppCompatActivity {
             updateScore();
 
         } else {
+            updateScore();
             finishQuiz();
         }
     }
