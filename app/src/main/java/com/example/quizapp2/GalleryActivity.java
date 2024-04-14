@@ -68,6 +68,10 @@ public class GalleryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
+        FloatingActionButton add = findViewById(R.id.floatingActionButton2);
+        Button backButton = findViewById(R.id.button4);
+        Button sort = findViewById(R.id.button5);
+
         // set up the imageAdapter first
         imageAdapter = new ImageAdapter(this);
 
@@ -95,7 +99,7 @@ public class GalleryActivity extends AppCompatActivity {
 
                             imageText.setText(displayImageName);
                             String imageURI = Converters.uriToString(pickedImage);
-                            QuizAppEntity image = new QuizAppEntity(imageURI, imageText.getText().toString());
+                            QuizAppEntity image = new QuizAppEntity(0, imageURI, imageText.getText().toString());
                             quizAppViewModel.insert(image);
                         }
                     }
@@ -111,24 +115,10 @@ public class GalleryActivity extends AppCompatActivity {
             }
         }
 
-
-        FloatingActionButton add = findViewById(R.id.floatingActionButton2);
-        Button backButton = findViewById(R.id.button4);
-        Button sort = findViewById(R.id.button5);
-        Button start = findViewById(R.id.button3);
-
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pickImage();
-            }
-        });
-
-        start.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(GalleryActivity.this, QuizActivity.class);
-                startActivity(intent);
             }
         });
 
@@ -178,22 +168,21 @@ public class GalleryActivity extends AppCompatActivity {
             resultLauncher.launch(intent);
         }
 
-    private void sortList() {
-        quizAppViewModel.getAllImages().observe(this, images -> {
-            if(!images.isEmpty()) {
-                // sorting the list using a comparator
-                Collections.sort(images, new Comparator<QuizAppEntity>() {
-                    @Override
-                    public int compare(QuizAppEntity img1, QuizAppEntity img2) {
-                        return img1.getName().compareTo(img2.getName());
-                    }
-                });
-                // remember to update the adapter after changes in the db, so the viewmodel can update the views
-                updateImageAdapter();
-            };
-        });
-    }
-
+        private void sortList() {
+            quizAppViewModel.getAllImages().observe(this, images -> {
+                if(!images.isEmpty()) {
+                    // sorting the list using a comparator
+                    Collections.sort(images, new Comparator<QuizAppEntity>() {
+                        @Override
+                        public int compare(QuizAppEntity img1, QuizAppEntity img2) {
+                            return img1.getName().compareTo(img2.getName());
+                        }
+                    });
+                    // remember to update the adapter after changes in the db, so the viewmodel can update the views
+                    updateImageAdapter();
+                };
+            });
+        }
 
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)

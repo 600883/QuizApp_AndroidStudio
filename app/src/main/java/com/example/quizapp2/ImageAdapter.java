@@ -12,9 +12,11 @@ import android.widget.TextView;
 import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 
+import com.example.quizapp2.room.Converters;
 import com.example.quizapp2.room.QuizAppEntity;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.Inflater;
 
 public class ImageAdapter extends BaseAdapter {
@@ -23,12 +25,6 @@ public class ImageAdapter extends BaseAdapter {
 
     private List<QuizAppEntity> list;
     private LayoutInflater inflater;
-
-    public ImageAdapter(Context context, List<QuizAppEntity> list) {
-        this.context = context;
-        this.list = list;
-        this.inflater = LayoutInflater.from(context);
-    }
 
     public ImageAdapter(Context context) {
         this.context = context;
@@ -71,26 +67,21 @@ public class ImageAdapter extends BaseAdapter {
         }
 
         QuizAppEntity image = list.get(position);
-        String imageUriOrName = image.getUri(); // Assuming this will contain either URI or a resourceName
+        Uri imageUriOrName = null; // Assuming this will contain either URI or a resourceName
 
-        if (imageUriOrName != null)  {
-            // it is a file uri
-            if (imageUriOrName.contains("/")) {
-                Glide.with(context).load(Uri.parse(imageUriOrName)).into(holder.imageView);
+        // Check if the image has a resource id
+        if (image.getImageResId() != 0)  {
+                Glide.with(context).load(image.getImageResId()).into(holder.imageView);
             } else {
-                // it is a resource name
-                int resourceId = context.getResources().getIdentifier(imageUriOrName, "drawable", context.getPackageName());
-                if (resourceId != 0) {
-                    holder.imageView.setImageResource(resourceId);
-                } else {
-                    holder.imageView.setImageResource(R.drawable.haaland);
-                }
+
+            if (!Objects.equals(image.getUri(), "")) {
+                imageUriOrName = Converters.fromString(image.getUri());
             }
-            holder.textView.setText(image.getName());
-        } else {
-            holder.imageView.setImageResource(R.drawable.haaland);
-            holder.textView.setText(image.getName());
+            if (imageUriOrName != null) {
+                Glide.with(context).load(image.getUri()).into(holder.imageView);
+            }
         }
+        holder.textView.setText(image.getName());
 
         return convertView;
     }

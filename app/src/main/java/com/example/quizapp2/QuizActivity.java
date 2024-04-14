@@ -90,8 +90,7 @@ public class QuizActivity extends AppCompatActivity {
             currentImage = quizIterator.next();
 
             //Display the image from the current quizAppEntity
-            displayImage(currentImage.getUri());
-            Log.e("quiz", currentImage.getUri());
+            displayImage(currentImage);
 
             correctAnswer = currentImage.getName();
 
@@ -138,14 +137,14 @@ public class QuizActivity extends AppCompatActivity {
                 Button clickedButton = (Button) v;
                 if(clickedButton.getText().toString().equals(correctAnswer)) {
                     clickedButton.setBackgroundColor(Color.GREEN);
-                    loadNextQuestionWithDelay();
                     numCorrects++;
                     totalTries++;
+                    loadNextQuestionWithDelay();
 
                 } else {
                     clickedButton.setBackgroundColor(Color.RED);
-                    loadNextQuestionWithDelay();
                     totalTries++;
+                    loadNextQuestionWithDelay();
 
                 }
                 option1.setEnabled(false);
@@ -170,6 +169,9 @@ public class QuizActivity extends AppCompatActivity {
         }, 500); // 500 ms delay before loading next question
     }
 
+    // This method gets called each time loadNextQuestionWithDelay is run.
+    // It resets the buttons color green/red to the default color(purple)
+    // It ensures that the buttons is ready to be clicked in the next question
     private void resetButtonColorsAndEnable() {
 
         option1.setBackgroundColor(Color.parseColor("#6200EE"));
@@ -181,13 +183,22 @@ public class QuizActivity extends AppCompatActivity {
         option3.setEnabled(true);
     }
 
-    private void displayImage(String imageUri) {
 
-        Uri uri = Uri.parse(imageUri);
+    // This method is responsible for showing the image in the quiz. It uses Glide to load it into
+    // the imageView in the Activity
+    private void displayImage(QuizAppEntity image) {
 
-        Glide.with(this).load(uri).into(imageView);
+        if (image.getImageResId() != 0) {
+            Glide.with(this).load(image.getImageResId()).into(imageView);
+        } else if (image.getUri() != null) {
+            Glide.with(this).load((image.getUri())).into(imageView);
+        } else {
+            Log.d("quiz", "No resource id or Uri");
+        }
     }
 
+    // This method finishes and quits the quiz. First the user is shown a confirmation
+    // that the quiz is finished. And then the app goes back to the main activity after 2 sec
     private void finishQuiz() {
         Toast.makeText(this,"You have finished the quiz!", Toast.LENGTH_LONG).show();
 

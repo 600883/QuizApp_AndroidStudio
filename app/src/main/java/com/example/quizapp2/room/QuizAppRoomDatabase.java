@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {QuizAppEntity.class}, version = 1, exportSchema = false)
+@Database(entities = {QuizAppEntity.class}, version = 2, exportSchema = false)
 public abstract class QuizAppRoomDatabase extends RoomDatabase {
     public abstract QuizAppDAO quizAppDAO();
 
@@ -24,8 +24,7 @@ public abstract class QuizAppRoomDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             synchronized (QuizAppRoomDatabase.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            QuizAppRoomDatabase.class, "image_database")
+                    INSTANCE = Room.databaseBuilder(context, QuizAppRoomDatabase.class, "image-database")
                             .build();
                 }
             }

@@ -4,7 +4,11 @@ import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
+
+import com.example.quizapp2.FileUtils;
+import com.example.quizapp2.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +16,6 @@ import java.util.List;
 public class QuizAppViewModel extends AndroidViewModel {
 
     private QuizAppRepository repository;
-
-    private MutableLiveData<Boolean> shouldSortByName = new MutableLiveData<>(false);
 
     private MutableLiveData<List<Long>> selectedImageIds = new MutableLiveData<>();
 
@@ -27,14 +29,32 @@ public class QuizAppViewModel extends AndroidViewModel {
         super(application);
         repository = new QuizAppRepository(application);
         allImages = repository.getAllImages();
+        checkAndInsertDefaultImages();
     }
 
-    public void setSelectedImageIds(List<Long> imageIds) {
-        selectedImageIds.setValue(imageIds);
+    private void checkAndInsertDefaultImages() {
+        // Trigger a one time check for inserting default images if the list is empty
+        // Observe the livedata
+        allImages.observeForever(new Observer<List<QuizAppEntity>>() {
+            @Override
+            public void onChanged(List<QuizAppEntity> images) {
+                // As soon as the livedata is observed, remove the observer, to prevent it from
+                // being run more than once
+                allImages.removeObserver(this);
+
+                if (images.isEmpty()) {
+                    insertDefaultImages();
+                }
+            }
+        });
     }
 
-    public LiveData<List<QuizAppEntity>> getQuizImages() {
-        return quizImages;
+    // Add default images
+    private void insertDefaultImages() {
+        repository.insert(new QuizAppEntity(R.drawable.odegaard, null, "odegaard"));
+        repository.insert(new QuizAppEntity(R.drawable.haaland, null, "haaland"));
+        repository.insert(new QuizAppEntity(R.drawable.messi, null, "messi"));
+
     }
 
     public LiveData<List<QuizAppEntity>> getAllImages() {

@@ -18,14 +18,21 @@ public class QuizAppEntity {
     @ColumnInfo(name = "uri")
     private String uri;
 
+    @ColumnInfo(name = "imageResId")
+    private int imageResId;
+
     @ColumnInfo(name = "name")
     private String name;
 
 
-    public QuizAppEntity(String uri, String name) {
+    // Constructor for both URI and drawable resource ID
+    // You need to determine how to utilize the uri and imageResId parameters
+    public QuizAppEntity(int imageResId, String uri, String name) {
+        this.imageResId = imageResId;
         this.uri = uri;
         this.name = name;
     }
+
 
     public int getId() {
         return id;
@@ -46,8 +53,25 @@ public class QuizAppEntity {
         this.uri = uri;
     }
 
+    public int getImageResId() {
+        return imageResId;
+    }
+
+    public void setImageResId(int imageResId) {
+        this.imageResId = imageResId;
+    }
+
+
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isDrawable() {
+        return imageResId != 0;
+    }
+
+    public boolean isUri() {
+        return uri != null && !uri.isEmpty();
     }
 
 
