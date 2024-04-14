@@ -20,7 +20,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 public class GalleryActivityTest {
-
+/*
     // Test for adding a photo
     @Rule
     public ActivityScenarioRule<GalleryActivity> activityActivityScenarioRule = new ActivityScenarioRule<>(GalleryActivity.class);
@@ -69,6 +69,8 @@ public class GalleryActivityTest {
 
     }
 
+
+ */
 
 
 

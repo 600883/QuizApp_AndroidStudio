@@ -1,15 +1,20 @@
 package com.example.quizapp2;
-
-
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.Manifest;
 import android.animation.ValueAnimator;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -47,10 +52,21 @@ public class QuizActivity extends AppCompatActivity {
     private int totalTries;
     TextView textView;
 
+    ImageAdapter imageAdapter;
+
+    private static int PERMISSION_REQUEST_READ_MEDIA_IMAGES = 101;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_quiz);
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            setContentView(R.layout.activity_quiz_landscape);
+        } else {
+            setContentView(R.layout.activity_quiz);
+        }
+
+        imageAdapter = new ImageAdapter(this);
 
         imageView = findViewById(R.id.imageView2);
         option1 = findViewById(R.id.button6);
@@ -74,12 +90,12 @@ public class QuizActivity extends AppCompatActivity {
         });
     }
 
-    private void setupQuiz(List<QuizAppEntity> quizAppEntities) {
+    private void setupQuiz(List<QuizAppEntity> images) {
         // Shuffle the images to randomize the order
-        Collections.shuffle(quizAppEntities);
+        Collections.shuffle(images);
 
         // Convert the list to an iterator for easy traversal
-        quizIterator = quizAppEntities.iterator();
+        quizIterator = images.iterator();
 
         nextQuestion();
     }
@@ -213,5 +229,35 @@ public class QuizActivity extends AppCompatActivity {
     private void updateScore() {
         String scoreView = "Score: " + numCorrects + "/" + totalTries;
         textView.setText(scoreView);
+    }
+
+    private void updateImageAdapter() {
+        quizAppViewModel.getAllImages().observe(this, images -> {
+            imageAdapter.setList(images);
+            imageAdapter.notifyDataSetChanged();
+        });
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    private void requestReadMediaImagesPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[] {Manifest.permission.READ_MEDIA_IMAGES},
+                PERMISSION_REQUEST_READ_MEDIA_IMAGES);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSION_REQUEST_READ_MEDIA_IMAGES) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, proceed with accessing media images
+                updateImageAdapter();
+            } else {
+                // Permission denied, inform the user of the necessary permissions
+                Toast.makeText(this, "Permission required to access images", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

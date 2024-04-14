@@ -17,11 +17,14 @@ public class QuizAppViewModel extends AndroidViewModel {
 
     private QuizAppRepository repository;
 
+    /*
     private MutableLiveData<List<Long>> selectedImageIds = new MutableLiveData<>();
 
     private LiveData<List<QuizAppEntity>> quizImages = Transformations.switchMap(selectedImageIds, ids -> {
         return repository.getImagesByIds(ids);
     });
+
+     */
 
     private LiveData<List<QuizAppEntity>> allImages;
 
