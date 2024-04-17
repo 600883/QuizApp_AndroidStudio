@@ -75,9 +75,6 @@ public class QuizActivity extends AppCompatActivity {
 
         textView = findViewById(R.id.resultatView);
 
-        setupAnswerButtonListener();
-
-
         // Initialize the ViewModel
         quizAppViewModel = new ViewModelProvider(this).get(QuizAppViewModel.class);
 
@@ -88,13 +85,15 @@ public class QuizActivity extends AppCompatActivity {
                 setupQuiz(quizAppEntities);
             }
         });
+
+        checkAnswers();
     }
 
     private void setupQuiz(List<QuizAppEntity> images) {
         // Shuffle the images to randomize the order
         Collections.shuffle(images);
 
-        // Convert the list to an iterator for easy traversal
+        // Convert the list to an iterator to let the quiz know which photo to show next
         quizIterator = images.iterator();
 
         nextQuestion();
@@ -146,12 +145,12 @@ public class QuizActivity extends AppCompatActivity {
     }
 
 
-    private void setupAnswerButtonListener() {
+    private void checkAnswers() {
         View.OnClickListener answerClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Button clickedButton = (Button) v;
-                if(clickedButton.getText().toString().equals(correctAnswer)) {
+                if (clickedButton.getText().toString().equals(correctAnswer)) {
                     clickedButton.setBackgroundColor(Color.GREEN);
                     numCorrects++;
                     totalTries++;
@@ -166,7 +165,6 @@ public class QuizActivity extends AppCompatActivity {
                 option1.setEnabled(false);
                 option2.setEnabled(false);
                 option3.setEnabled(false);
-
             }
 
         };

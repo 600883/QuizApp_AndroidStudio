@@ -3,8 +3,13 @@ package com.example.quizapp2;
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.core.IsAnything.anything;
 import static org.junit.Assert.assertEquals;
 
@@ -20,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 public class GalleryActivityTest {
-/*
+
     // Test for adding a photo
     @Rule
     public ActivityScenarioRule<GalleryActivity> activityActivityScenarioRule = new ActivityScenarioRule<>(GalleryActivity.class);
@@ -63,14 +68,20 @@ public class GalleryActivityTest {
 
         });
 
+    }
 
-
-
-
+    @Test
+    public void testDeleteImage() {
+        onView(withId(R.id.gridView)).perform(click());
+        onView(withId(R.id.gridView)).check(matches(isDisplayed()));
+        onView(allOf(withId(R.id.textView), withText("Haaland"))).check(matches(isDisplayed()));
+        onView(allOf(withId(R.id.textView), withText("Haaland"))).perform(click());
+        onView(allOf(withId(R.id.textView), withText("Haaland"))).check(doesNotExist());
     }
 
 
- */
+
+
 
 
 
