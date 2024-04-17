@@ -20,22 +20,14 @@ public class QuizgameViewModel extends AndroidViewModel {
 
     private QuizAppRepository repository;
 
-    /*
-    private MutableLiveData<List<Long>> selectedImageIds = new MutableLiveData<>();
-
-    private LiveData<List<QuizAppEntity>> quizImages = Transformations.switchMap(selectedImageIds, ids -> {
-        return repository.getImagesByIds(ids);
-    });
-
-     */
-
-    private MutableLiveData<Integer> correctAnswer = new MutableLiveData<>();
-    private MutableLiveData<Integer> attempts = new MutableLiveData<>();
-    private MutableLiveData<QuizAppEntity> imagePicked = new MutableLiveData<>();
-    private MutableLiveData<List<QuizAppEntity>> options = new MutableLiveData<>();
+    private MutableLiveData<Integer> correctAnswer = new MutableLiveData<>(0);
+    private MutableLiveData<Integer> attempts = new MutableLiveData<>(1);
+    private MutableLiveData<QuizAppEntity> pickedImage = new MutableLiveData<>();
+    private MutableLiveData<List<String>> options = new MutableLiveData<>();
     private Observer<List<QuizAppEntity>> observer;
 
-    private LiveData<List<QuizAppEntity>> allImages;
+
+    private final LiveData<List<QuizAppEntity>> allImages;
 
     public QuizgameViewModel(Application application) {
         super(application);
@@ -53,34 +45,15 @@ public class QuizgameViewModel extends AndroidViewModel {
             }
         });
 
-
     }
 
     private void setupQuiz(List<QuizAppEntity> images) {
         // Shuffle the images to randomize the order
         Collections.shuffle(images);
 
-        imagePicked.setValue(images.get(0));
+        pickedImage.setValue(images.get(0));
 
     }
-
-    public void setButtonOptions(List<QuizAppEntity> images) {
-        int indexA = images.indexOf(imagePicked.getValue());
-
-        int indexB, indexC;
-
-        Random random = new Random();
-
-        do {
-            indexB = random.nextInt(images.size());
-        } while (indexB == indexA);
-
-        do {
-            indexC = random.nextInt(images.size());
-        } while (indexC == indexA );
-    }
-
-
 
     // Add default images
     private void insertDefaultImages() {
@@ -90,8 +63,29 @@ public class QuizgameViewModel extends AndroidViewModel {
 
     }
 
-    public LiveData<List<QuizAppEntity>> getAllImages() {
+
+    public LiveData<List<QuizAppEntity>> getImages() {
         return allImages;
+    }
+
+    public MutableLiveData<Integer> getCorrectAnswer() {
+        return correctAnswer;
+    }
+
+    public MutableLiveData<Integer> getAttempts() {
+        return attempts;
+    }
+
+    public LiveData<List<String>> getOptions() {
+        return options;
+    }
+
+    public MutableLiveData<QuizAppEntity> getPickedImage() {
+        return pickedImage;
+    }
+
+    public void setPickedImage(MutableLiveData<QuizAppEntity> image) {
+        this.pickedImage = image;
     }
 
     public void insert(QuizAppEntity image) {
