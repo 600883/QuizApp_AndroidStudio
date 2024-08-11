@@ -29,9 +29,9 @@ public class QuizgameViewModel extends AndroidViewModel {
 
      */
 
-    private MutableLiveData<Integer> correctAnswer = new MutableLiveData<>();
-    private MutableLiveData<Integer> attempts = new MutableLiveData<>();
-    private MutableLiveData<QuizAppEntity> imagePicked = new MutableLiveData<>();
+    private MutableLiveData<Integer> correctAnswers = new MutableLiveData<>(0);
+    private MutableLiveData<Integer> attempts = new MutableLiveData<>(1);
+    private MutableLiveData<QuizAppEntity> pickedImage = new MutableLiveData<>();
     private MutableLiveData<List<QuizAppEntity>> options = new MutableLiveData<>();
     private Observer<List<QuizAppEntity>> observer;
 
@@ -60,12 +60,12 @@ public class QuizgameViewModel extends AndroidViewModel {
         // Shuffle the images to randomize the order
         Collections.shuffle(images);
 
-        imagePicked.setValue(images.get(0));
+        pickedImage.setValue(images.get(0));
 
     }
 
     public void setButtonOptions(List<QuizAppEntity> images) {
-        int indexA = images.indexOf(imagePicked.getValue());
+        int indexA = images.indexOf(pickedImage.getValue());
 
         int indexB, indexC;
 
@@ -92,6 +92,22 @@ public class QuizgameViewModel extends AndroidViewModel {
 
     public LiveData<List<QuizAppEntity>> getAllImages() {
         return allImages;
+    }
+
+    public MutableLiveData<Integer> getCorrectAnswers() {
+        return correctAnswers;
+    }
+
+    public MutableLiveData<Integer> getAttempts() {
+        return attempts;
+    }
+
+    public MutableLiveData<QuizAppEntity> getPickedImage() {
+        return pickedImage;
+    }
+
+    public void setPickedImage(MutableLiveData<QuizAppEntity> pickedImage) {
+        this.pickedImage = pickedImage;
     }
 
     public void insert(QuizAppEntity image) {

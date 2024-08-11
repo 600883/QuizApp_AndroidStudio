@@ -4,6 +4,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -48,13 +49,12 @@ public class QuizActivity extends AppCompatActivity {
 
     private QuizAppViewModel quizAppViewModel;
 
-    private int numCorrects;
-    private int totalTries;
     TextView textView;
 
     ImageAdapter imageAdapter;
 
     private static int PERMISSION_REQUEST_READ_MEDIA_IMAGES = 101;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,21 +73,63 @@ public class QuizActivity extends AppCompatActivity {
         option2 = findViewById(R.id.button7);
         option3 = findViewById(R.id.button8);
 
-        textView = findViewById(R.id.resultatView);
+        //textView = findViewById(R.id.resultatView);
 
         // Initialize the ViewModel
         quizAppViewModel = new ViewModelProvider(this).get(QuizAppViewModel.class);
 
-        // Observe the LiveData containg all images from the database
-        quizAppViewModel.getAllImages().observe(this, new Observer<List<QuizAppEntity>>() {
+        quizAppViewModel.getAllImages().observe(this, images -> {
+            setupQuiz(images);
+        });
+
+        /*
+        // Only fetch and set up the quiz if it's a fresh start, check if savedInstanceState is null
+        if (savedInstanceState == null) {
+            // Fetch all images and set up the quiz
+            quizAppViewModel.getAllImages().observe(this, images -> {
+                // Make sure to check for null or empty lists
+                if (images != null && !images.isEmpty()) {
+                    setupQuiz(images);
+                }
+            });
+        }
+
+         */
+
+
+
+        quizAppViewModel.getCurrentImage().observe(this, new Observer<QuizAppEntity>() {
             @Override
-            public void onChanged(List<QuizAppEntity> quizAppEntities) {
-                setupQuiz(quizAppEntities);
+            public void onChanged(QuizAppEntity quizAppEntity) {
+                displayImage(quizAppEntity);
             }
         });
 
+        quizAppViewModel.getCorrectAnswers().observe(this, numberCorrects -> {
+            updateScoreDisplay(numberCorrects, quizAppViewModel.getAttempts().getValue());
+        });
+
+        quizAppViewModel.getAttempts().observe(this, attempts -> {
+            updateScoreDisplay(quizAppViewModel.getCorrectAnswers().getValue(), attempts);
+        });
+
+
+
+
+
+
+        /*
+        quizAppViewModel.getIsQuizFinished().observe(this, isFinished -> {
+            if (isFinished) {
+                finishQuiz();
+            }
+        });
+
+         */
+
         checkAnswers();
     }
+
 
     private void setupQuiz(List<QuizAppEntity> images) {
         // Shuffle the images to randomize the order
@@ -96,10 +138,21 @@ public class QuizActivity extends AppCompatActivity {
         // Convert the list to an iterator to let the quiz know which photo to show next
         quizIterator = images.iterator();
 
+
+        //quizAppViewModel.loadNextImage();
         nextQuestion();
+
     }
 
-    private void nextQuestion() {
+    private void updateScoreDisplay(Integer correctAnswers, Integer attempts) {
+        if (correctAnswers == null || attempts == null) return;
+
+        String scoreText = correctAnswers + "/"+ attempts;
+        TextView scoreView = findViewById(R.id.resultatView);
+        scoreView.setText(scoreText);
+    }
+
+    public void nextQuestion() {
         resetButtonColorsAndEnable();
         if(quizIterator.hasNext()) {
             currentImage = quizIterator.next();
@@ -110,10 +163,8 @@ public class QuizActivity extends AppCompatActivity {
             correctAnswer = currentImage.getName();
 
             prepareOptions();
-            updateScore();
 
         } else {
-            updateScore();
             finishQuiz();
         }
     }
@@ -124,7 +175,7 @@ public class QuizActivity extends AppCompatActivity {
         liveData.observe(this, new Observer<List<String>>() {
             @Override
             public void onChanged(List<String> options) {
-                Collections.shuffle(options);
+                //Collections.shuffle(options);
 
                 while (options.size() > 2) {
                     options.remove(options.size() - 1);
@@ -146,19 +197,29 @@ public class QuizActivity extends AppCompatActivity {
 
 
     private void checkAnswers() {
+        MutableLiveData<Integer> score = quizAppViewModel.getCorrectAnswers();
         View.OnClickListener answerClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Button clickedButton = (Button) v;
+
+                Integer currentAttempts = quizAppViewModel.getAttempts().getValue();
+                if(currentAttempts != null) {
+                    quizAppViewModel.getAttempts().setValue(currentAttempts + 1);
+                }
+
                 if (clickedButton.getText().toString().equals(correctAnswer)) {
                     clickedButton.setBackgroundColor(Color.GREEN);
-                    numCorrects++;
-                    totalTries++;
+
+                    Integer currentScore = quizAppViewModel.getCorrectAnswers().getValue();
+                    if(currentScore != null) {
+                        quizAppViewModel.getCorrectAnswers().setValue(currentScore + 1);
+                    }
+
                     loadNextQuestionWithDelay();
 
                 } else {
                     clickedButton.setBackgroundColor(Color.RED);
-                    totalTries++;
                     loadNextQuestionWithDelay();
 
                 }
@@ -213,7 +274,7 @@ public class QuizActivity extends AppCompatActivity {
 
     // This method finishes and quits the quiz. First the user is shown a confirmation
     // that the quiz is finished. And then the app goes back to the main activity after 2 sec
-    private void finishQuiz() {
+    public void finishQuiz() {
         Toast.makeText(this,"You have finished the quiz!", Toast.LENGTH_LONG).show();
 
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
@@ -224,10 +285,6 @@ public class QuizActivity extends AppCompatActivity {
         }, 2000);
     }
 
-    private void updateScore() {
-        String scoreView = "Score: " + numCorrects + "/" + totalTries;
-        textView.setText(scoreView);
-    }
 
     private void updateImageAdapter() {
         quizAppViewModel.getAllImages().observe(this, images -> {
@@ -235,7 +292,6 @@ public class QuizActivity extends AppCompatActivity {
             imageAdapter.notifyDataSetChanged();
         });
     }
-
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     private void requestReadMediaImagesPermission() {

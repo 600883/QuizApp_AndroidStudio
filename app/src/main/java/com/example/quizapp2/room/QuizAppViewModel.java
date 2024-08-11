@@ -8,25 +8,28 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
 import com.example.quizapp2.FileUtils;
+import com.example.quizapp2.QuizActivity;
 import com.example.quizapp2.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class QuizAppViewModel extends AndroidViewModel {
 
     private QuizAppRepository repository;
-
-    /*
-    private MutableLiveData<List<Long>> selectedImageIds = new MutableLiveData<>();
-
-    private LiveData<List<QuizAppEntity>> quizImages = Transformations.switchMap(selectedImageIds, ids -> {
-        return repository.getImagesByIds(ids);
-    });
-
-     */
-
+    private QuizActivity quizActivity;
+    private MutableLiveData<Integer> correctAnswers = new MutableLiveData<>(0);
+    private MutableLiveData<Integer> attempts = new MutableLiveData<>(0);
+    private MutableLiveData<QuizAppEntity> currentImage = new MutableLiveData<>();
+    private MutableLiveData<List<QuizAppEntity>> pickedImages = new MutableLiveData<>();
+    private MutableLiveData<Boolean> isQuizFinished = new MutableLiveData<>();
     private LiveData<List<QuizAppEntity>> allImages;
+    private List<QuizAppEntity> shuffledImages;
+    private int currentIndex = 0;
+
+    Iterator quizIterator;
 
     public QuizAppViewModel(Application application) {
         super(application);
@@ -52,12 +55,56 @@ public class QuizAppViewModel extends AndroidViewModel {
         });
     }
 
+    // Method to initialize or restore the quiz state
+    public void setupQuiz(List<QuizAppEntity> images) {
+        if (shuffledImages == null) {
+            shuffledImages = images;
+            Collections.shuffle(shuffledImages);
+            currentIndex = 0;
+            currentImage.setValue(shuffledImages.get(currentIndex));
+        } else {
+            // If quizAppEntityList is not null, it means the ViewModel already has state
+            // (e.g. after a configuration change), so simply restore it
+            currentImage.setValue(shuffledImages.get(currentIndex));
+        }
+    }
+
+    public void loadNextImage() {
+        // Ensure there are images to show
+        if (shuffledImages != null && currentIndex < shuffledImages.size()) {
+            currentImage.setValue(shuffledImages.get(currentIndex));
+
+            currentIndex++;
+            quizActivity.nextQuestion();
+
+        } else {
+            isQuizFinished.setValue(true);
+        }
+    }
+
+
     // Add default images
     private void insertDefaultImages() {
         repository.insert(new QuizAppEntity(R.drawable.odegaard, null, "odegaard"));
         repository.insert(new QuizAppEntity(R.drawable.haaland, null, "haaland"));
         repository.insert(new QuizAppEntity(R.drawable.messi, null, "messi"));
 
+    }
+
+    public MutableLiveData<Integer> getCorrectAnswers() {
+        return correctAnswers;
+    }
+
+    public LiveData<Boolean> getIsQuizFinished() {
+        return isQuizFinished;
+    }
+
+    public MutableLiveData<Integer> getAttempts() {
+        return attempts;
+    }
+
+    public MutableLiveData<QuizAppEntity> getCurrentImage() {
+        return currentImage;
     }
 
     public LiveData<List<QuizAppEntity>> getAllImages() {
